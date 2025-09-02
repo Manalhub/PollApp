@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Container } from '@/components/ui/container';
 
 type PollOption = {
   id: string;
@@ -99,99 +102,115 @@ export default function PollDetailPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </div>
+      <Container className="py-8">
+        <Card className="overflow-hidden">
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--muted))] border-t-[hsl(var(--primary))]"></div>
+              <p className="text-[hsl(var(--muted-foreground))]">Loading poll...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </Container>
     );
   }
 
   if (!poll) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium text-gray-600 mb-4">Poll not found</h3>
-          <p className="text-gray-500 mb-6">The poll you're looking for doesn't exist or has been removed.</p>
-          <Link
-            href="/polls"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Back to Polls
-          </Link>
-        </div>
-      </div>
+      <Container className="py-8">
+        <Card className="overflow-hidden">
+          <CardContent className="p-8">
+            <div className="text-center py-12">
+              <svg className="w-16 h-16 mx-auto mb-4 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-xl font-medium text-[hsl(var(--foreground))] mb-4">Poll not found</h3>
+              <p className="text-[hsl(var(--muted-foreground))] mb-6">The poll you're looking for doesn't exist or has been removed.</p>
+              <Button asChild>
+                <Link href="/polls">Back to Polls</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </Container>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link
-        href="/polls"
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
-      >
-        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Polls
-      </Link>
+    <Container className="py-8">
+      <Button variant="ghost" size="sm" asChild className="mb-6">
+        <Link href="/polls" className="inline-flex items-center">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Polls
+        </Link>
+      </Button>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-2">{poll.title}</h1>
-          <p className="text-gray-600 mb-4">{poll.description}</p>
-          <p className="text-sm text-gray-500 mb-6">Created on {formatDate(poll.createdAt)}</p>
+      <Card className="overflow-hidden animate-fade-in">
+        <CardHeader>
+          <CardTitle className="text-2xl">{poll.title}</CardTitle>
+          <CardDescription>{poll.description}</CardDescription>
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">Created on {formatDate(poll.createdAt)}</p>
+        </CardHeader>
+        <CardContent>
 
           <div className="space-y-4">
             {poll.options.map((option) => (
-              <div key={option.id} className="border border-gray-200 rounded-md p-4">
+              <div 
+                key={option.id} 
+                className={`border rounded-md p-4 transition-all ${selectedOption === option.id ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.05)]' : 'border-[hsl(var(--border))]'} ${!hasVoted ? 'cursor-pointer hover:border-[hsl(var(--primary))]' : ''}`}
+                onClick={() => !hasVoted && setSelectedOption(option.id)}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     {!hasVoted && (
-                      <input
-                        type="radio"
-                        id={option.id}
-                        name="poll-option"
-                        value={option.id}
-                        checked={selectedOption === option.id}
-                        onChange={() => setSelectedOption(option.id)}
-                        className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500"
-                      />
+                      <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center ${selectedOption === option.id ? 'border-[hsl(var(--primary))]' : 'border-[hsl(var(--muted-foreground))]'}`}>
+                        {selectedOption === option.id && (
+                          <div className="w-3 h-3 rounded-full bg-[hsl(var(--primary))]"></div>
+                        )}
+                      </div>
                     )}
-                    <label htmlFor={option.id} className="text-gray-900">{option.text}</label>
+                    <label htmlFor={option.id} className={`${!hasVoted ? 'cursor-pointer' : ''} ${selectedOption === option.id ? 'font-medium' : ''}`}>
+                      {option.text}
+                    </label>
                   </div>
-                  <span className="text-gray-700 font-medium">{calculatePercentage(option.votes)}%</span>
+                  <span className="text-[hsl(var(--foreground))] font-medium">{calculatePercentage(option.votes)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="w-full bg-[hsl(var(--muted))] rounded-full h-2.5 mt-2">
                   <div
-                    className="bg-blue-600 h-2.5 rounded-full"
+                    className="bg-[hsl(var(--primary))] h-2.5 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${calculatePercentage(option.votes)}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-gray-500 mt-1 text-right">{option.votes} votes</div>
+                <div className="text-xs text-[hsl(var(--muted-foreground))] mt-1 text-right">{option.votes} votes</div>
               </div>
             ))}
           </div>
 
           {!hasVoted ? (
-            <button
-              onClick={handleVote}
+            <Button 
+              onClick={handleVote} 
               disabled={!selectedOption}
-              className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="mt-6 w-full sm:w-auto"
+              isLoading={false}
             >
               Submit Vote
-            </button>
+            </Button>
           ) : (
-            <div className="mt-6 p-4 bg-green-50 text-green-800 rounded-md">
+            <div className="mt-6 p-4 bg-[hsl(var(--success)/0.2)] text-[hsl(var(--success))] rounded-md animate-slide-up flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
               Thank you for voting! Your vote has been recorded.
             </div>
           )}
 
-          <div className="mt-6 text-sm text-gray-500">
+          <div className="mt-6 text-sm text-[hsl(var(--muted-foreground))]">
             Total votes: {poll.totalVotes}
           </div>
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </Container>
   );
 }
